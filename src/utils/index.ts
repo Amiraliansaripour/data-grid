@@ -103,36 +103,94 @@ export const setNestedValue = (obj: any, path: string, value: any): void => {
 export const matchesFilter = (
   value: any,
   filterValue: string | number,
-  operator: string
+  operator: string,
+  columnType?: 'text' | 'number' | 'date' | 'boolean' | 'percentage'
 ): boolean => {
   if (!filterValue && filterValue !== 0) return true;
 
-  const stringValue = String(value || '').toLowerCase();
-  const filterStringValue = String(filterValue).toLowerCase();
+  // Prepare helpers for typed comparisons
+  const toNumber = (v: any) => {
+    const n = typeof v === 'string' ? parseFloat(v.replace(/[,\s]/g, '')) : Number(v);
+    return Number.isNaN(n) ? NaN : n;
+  };
+  const toDate = (v: any) => {
+    const d = v instanceof Date ? v : new Date(v);
+    return isNaN(d.getTime()) ? null : d;
+  };
+  const toBool = (v: any) => {
+    if (typeof v === 'boolean') return v;
+    const s = String(v).toLowerCase();
+    return s === 'true' || s === '1' || s === 'yes';
+  };
+
+  const stringValue = String(value ?? '').toLowerCase();
+  const filterStringValue = String(filterValue ?? '').toLowerCase();
 
   switch (operator) {
     case 'contains':
       return stringValue.includes(filterStringValue);
     case 'equals':
+      if (columnType === 'number' || columnType === 'percentage') {
+        return toNumber(value) === toNumber(filterValue);
+      }
+      if (columnType === 'date') {
+        const a = toDate(value);
+        const b = toDate(filterValue);
+        return !!a && !!b && a.getTime() === b.getTime();
+      }
+      if (columnType === 'boolean') {
+        return toBool(value) === toBool(filterValue);
+      }
       return stringValue === filterStringValue;
     case 'starts_with':
       return stringValue.startsWith(filterStringValue);
     case 'ends_with':
       return stringValue.endsWith(filterStringValue);
     case 'greater_than':
-      return Number(value) > Number(filterValue);
+      if (columnType === 'date') {
+        const a = toDate(value);
+        const b = toDate(filterValue);
+        return !!a && !!b && a.getTime() > b.getTime();
+      }
+      return toNumber(value) > toNumber(filterValue);
     case 'less_than':
-      return Number(value) < Number(filterValue);
+      if (columnType === 'date') {
+        const a = toDate(value);
+        const b = toDate(filterValue);
+        return !!a && !!b && a.getTime() < b.getTime();
+      }
+      return toNumber(value) < toNumber(filterValue);
     case 'greater_equal':
-      return Number(value) >= Number(filterValue);
+      if (columnType === 'date') {
+        const a = toDate(value);
+        const b = toDate(filterValue);
+        return !!a && !!b && a.getTime() >= b.getTime();
+      }
+      return toNumber(value) >= toNumber(filterValue);
     case 'less_equal':
-      return Number(value) <= Number(filterValue);
+      if (columnType === 'date') {
+        const a = toDate(value);
+        const b = toDate(filterValue);
+        return !!a && !!b && a.getTime() <= b.getTime();
+      }
+      return toNumber(value) <= toNumber(filterValue);
     case 'not_equal':
+      if (columnType === 'number' || columnType === 'percentage') {
+        return toNumber(value) !== toNumber(filterValue);
+      }
+      if (columnType === 'date') {
+        const a = toDate(value);
+        const b = toDate(filterValue);
+        return !(!!a && !!b && a.getTime() === b.getTime());
+      }
+      if (columnType === 'boolean') {
+        return toBool(value) !== toBool(filterValue);
+      }
       return stringValue !== filterStringValue;
     case 'is_empty':
-      return !value || value === '';
+      return value === undefined || value === null || String(value).trim() === '';
     case 'is_not_empty':
-      return value && value !== '';
+      return !(value === undefined || value === null || String(value).trim() === '');
     default:
       return true;
   }

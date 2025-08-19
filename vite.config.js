@@ -26,6 +26,16 @@ export default defineConfig(({ mode }) => ({
         globals: {
           react: 'React',
           'react-dom': 'ReactDOM'
+        },
+        // Ensure default + named export interop is friendly
+        exports: 'named',
+        // Emit a consistent CSS filename for consumers
+        assetFileNames: (chunkInfo) => {
+          if (chunkInfo.name && chunkInfo.name.endsWith('.css')) {
+            return 'style.css';
+          }
+          // Preserve default for other assets
+          return 'assets/[name]-[hash][extname]';
         }
       }
     },

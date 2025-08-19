@@ -1,3 +1,6 @@
+// Ensure base styles are included in the library build
+import './index.css';
+
 // Main exports
 export { DataTable as default, DataTable } from './components/DataTable';
 export { default as ChartModal } from './components/ChartModal';
