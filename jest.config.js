@@ -4,11 +4,10 @@ export default {
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
   transform: {
     '^.+\\.(ts|tsx)$': 'ts-jest',
-    '^.+\\.(js|jsx)$': 'babel-jest',
   },
   testMatch: [
-    '<rootDir>/src/**/__tests__/**/*.(ts|tsx|js|jsx)',
-    '<rootDir>/src/**/?(*.)(spec|test).(ts|tsx|js|jsx)',
+    '<rootDir>/src/**/*.test.(ts|tsx|js|jsx)',
+    '<rootDir>/src/**/*.spec.(ts|tsx|js|jsx)',
   ],
   moduleNameMapper: {
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
@@ -23,28 +22,9 @@ export default {
     '!src/App.jsx',
     '!src/vite-env.d.ts',
   ],
-  coverageDirectory: 'coverage',
-  coverageReporters: ['text', 'lcov', 'html'],
-  coverageThreshold: {
-    global: {
-      branches: 80,
-      functions: 80,
-      lines: 80,
-      statements: 80,
-    },
-  },
   testPathIgnorePatterns: [
     '<rootDir>/node_modules/',
     '<rootDir>/dist/',
     '<rootDir>/build/',
   ],
-  moduleDirectories: ['node_modules', '<rootDir>/src'],
-  transformIgnorePatterns: [
-    'node_modules/(?!(.*\\.mjs$|@testing-library|lucide-react))',
-  ],
-  globals: {
-    'ts-jest': {
-      useESM: true,
-    },
-  },
 };

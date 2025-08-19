@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as XLSX from 'xlsx';
 import {
@@ -149,7 +149,7 @@ export const DataTable: React.FC<DataTableProps> = (props = {}) => {
   const summaryStats = useSummaryStats(processedColumns, filteredData, excludeFromSummary);
 
   // Handle click outside to close dropdown
-  React.useEffect(() => {
+  useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (!(event.target as Element)?.closest('.dropdown-container')) {
         setOpenDropdownRowId(null);
