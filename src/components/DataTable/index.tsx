@@ -1,15 +1,12 @@
-import React, { useState, useMemo, useCallback, Fragment } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as XLSX from 'xlsx';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
 import {
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
   Search,
-  Filter,
   Eye,
   ArrowUpDown,
   ArrowUp,
@@ -17,23 +14,15 @@ import {
   MoreHorizontal,
   RefreshCw,
   FileText,
-  BarChart3,
-  Calendar,
-  Hash,
   TrendingUp,
   TrendingDown,
   ExternalLink,
   LineChart,
   Settings,
-  X,
-  Plus,
-  Layers,
-  SortAsc,
-  Group,
 } from 'lucide-react';
 import { BsFiletypeXls } from 'react-icons/bs';
 
-import { DataTableProps, CustomAction, RowAction } from '../../types';
+import { DataTableProps, DataTableColumn } from '../../types';
 import {
   useDataTableState,
   useProcessedColumns,
@@ -44,7 +33,6 @@ import {
   useColumnVisibility,
   useRowSelection
 } from '../../hooks';
-import { formatNumber, formatDate, generateId, downloadFile } from '../../utils';
 import ChartModal from '../ChartModal';
 
 /**
@@ -68,7 +56,6 @@ export const DataTable: React.FC<DataTableProps> = (props = {}) => {
     title = "جدول داده‌ها",
     subtitle = "",
     showSearch = true,
-    showFilter = true,
     showExport = true,
     showColumnToggle = true,
     showPagination = true,
@@ -93,28 +80,6 @@ export const DataTable: React.FC<DataTableProps> = (props = {}) => {
     searchPlaceholder = "جستجو در داده‌ها...",
     showMoreColumn = false,
     rowActions = [],
-    showComparison = false,
-    comparisonAccessor = "symbol",
-    selectedComparisons = [],
-    onComparisonChange = null,
-    maxComparisons = 4,
-    comparisonLabel = "انتخاب برای مقایسه",
-    showColumnComparison = false,
-    selectedColumnsForComparison = [],
-    onColumnComparisonChange = null,
-    maxColumnComparisons = 4,
-    columnComparisonLabel = "انتخاب ستون برای مقایسه",
-    onOpenColumnComparison = null,
-    columnComparisonButtonLabel = "مقایسه ستون‌ها",
-    showSymbolCharting = false,
-    symbolAccessor = "symbol",
-    selectedSymbolsForChart = [],
-    onSymbolChartChange = null,
-    maxSymbolsForChart = 4,
-    symbolChartLabel = "انتخاب نماد برای نمودار",
-    onOpenSymbolChart = null,
-    symbolChartButtonLabel = "نمودار نمادها",
-    chartOptions = ["area", "line", "bar"],
   } = props;
 
   // Early safety checks
@@ -139,9 +104,6 @@ export const DataTable: React.FC<DataTableProps> = (props = {}) => {
     sortConfig,
     setSortConfig,
     groupByColumn,
-    setGroupByColumn,
-    expandedGroups,
-    setExpandedGroups,
   } = useDataTableState(defaultItemsPerPage);
 
   // Column visibility
@@ -151,15 +113,14 @@ export const DataTable: React.FC<DataTableProps> = (props = {}) => {
   const { selectedRows, handleSelectRow, handleSelectAll } = useRowSelection();
 
   // Filters and sorts
-  const { multipleFilters, addFilter, removeFilter, updateFilter } = useFilters(columns);
-  const { multipleSortConfig, addSort, removeSort, updateSort } = useSorts(columns);
+  const { multipleFilters } = useFilters(columns);
+  const { multipleSortConfig } = useSorts(columns);
 
   // UI state
   const [openDropdownRowId, setOpenDropdownRowId] = useState<string | number | null>(null);
   const [showColumnSelector, setShowColumnSelector] = useState(false);
   const [showAdvancedFilterPanel, setShowAdvancedFilterPanel] = useState(false);
   const [showChartModal, setShowChartModal] = useState(false);
-  const [selectedColumnsForChart, setSelectedColumnsForChart] = useState<string[]>([]);
 
   // Process columns with auto-detection
   const processedColumns = useProcessedColumns(columns, data);
@@ -199,6 +160,8 @@ export const DataTable: React.FC<DataTableProps> = (props = {}) => {
       document.addEventListener('mousedown', handleClickOutside);
       return () => document.removeEventListener('mousedown', handleClickOutside);
     }
+    
+    return undefined;
   }, [openDropdownRowId]);
 
   // Visible columns
@@ -262,73 +225,7 @@ export const DataTable: React.FC<DataTableProps> = (props = {}) => {
   // Handle chart modal close
   const handleCloseChartModal = useCallback(() => {
     setShowChartModal(false);
-    setSelectedColumnsForChart([]);
   }, []);
-
-  // Group expansion handler
-  const toggleGroupExpansion = useCallback((groupKey: string) => {
-    setExpandedGroups((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(groupKey)) {
-        newSet.delete(groupKey);
-      } else {
-        newSet.add(groupKey);
-      }
-      return newSet;
-    });
-  }, [setExpandedGroups]);
-
-  // Comparison handlers
-  const handleComparisonToggle = useCallback(
-    (row: any, isSelected: boolean) => {
-      if (!onComparisonChange) return;
-      const comparisonValue = row[comparisonAccessor];
-      onComparisonChange(comparisonValue, isSelected);
-    },
-    [onComparisonChange, comparisonAccessor]
-  );
-
-  const isSelectedForComparison = useCallback(
-    (row: any) => {
-      const comparisonValue = row[comparisonAccessor];
-      return selectedComparisons.includes(comparisonValue);
-    },
-    [selectedComparisons, comparisonAccessor]
-  );
-
-  // Symbol chart handlers
-  const handleSymbolChartToggle = useCallback(
-    (row: any, isSelected: boolean) => {
-      if (!onSymbolChartChange) return;
-      const symbolValue = row[symbolAccessor];
-      onSymbolChartChange(symbolValue, isSelected);
-    },
-    [onSymbolChartChange, symbolAccessor]
-  );
-
-  const isSelectedForSymbolChart = useCallback(
-    (row: any) => {
-      const symbolValue = row[symbolAccessor];
-      return selectedSymbolsForChart.includes(symbolValue);
-    },
-    [selectedSymbolsForChart, symbolAccessor]
-  );
-
-  // Column comparison handlers
-  const handleColumnComparisonToggle = useCallback(
-    (columnAccessor: string, isSelected: boolean) => {
-      if (!onColumnComparisonChange) return;
-      onColumnComparisonChange(columnAccessor, isSelected);
-    },
-    [onColumnComparisonChange]
-  );
-
-  const isColumnSelectedForComparison = useCallback(
-    (columnAccessor: string) => {
-      return selectedColumnsForComparison.includes(columnAccessor);
-    },
-    [selectedColumnsForComparison]
-  );
 
   // Animation variants
   const tableVariants = {
@@ -598,42 +495,45 @@ export const DataTable: React.FC<DataTableProps> = (props = {}) => {
                   />
                 </th>
 
-                {visibleColumns.map((column) => (
-                  <th
-                    key={column.accessor as string}
-                    className={`
+                {visibleColumns.map((column) => {
+                  const col = column as DataTableColumn;
+                  return (
+                    <th
+                      key={col.accessor as string}
+                      className={`
                         px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider
                         ${
-                          column.sortable !== false
+                          col.sortable !== false
                             ? 'cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors'
                             : ''
                         }
                       `}
-                    onClick={() =>
-                      column.sortable !== false && handleSort(column.accessor as string)
-                    }
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        {column.icon && <column.icon className="w-4 h-4" />}
-                        {column.header}
-                      </div>
-                      {column.sortable !== false && (
-                        <div className="flex flex-col">
-                          {sortConfig.key === column.accessor ? (
-                            sortConfig.direction === 'asc' ? (
-                              <ArrowUp className="w-3 h-3" />
-                            ) : (
-                              <ArrowDown className="w-3 h-3" />
-                            )
-                          ) : (
-                            <ArrowUpDown className="w-3 h-3 opacity-40" />
-                          )}
+                      onClick={() =>
+                        col.sortable !== false && handleSort(col.accessor as string)
+                      }
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          {col.icon && <col.icon className="w-4 h-4" />}
+                          {col.header}
                         </div>
-                      )}
-                    </div>
-                  </th>
-                ))}
+                        {col.sortable !== false && (
+                          <div className="flex flex-col">
+                            {sortConfig.key === col.accessor ? (
+                              sortConfig.direction === 'asc' ? (
+                                <ArrowUp className="w-3 h-3" />
+                              ) : (
+                                <ArrowDown className="w-3 h-3" />
+                              )
+                            ) : (
+                              <ArrowUpDown className="w-3 h-3 opacity-40" />
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </th>
+                  );
+                })}
 
                 {/* Actions column */}
                 {(showMoreColumn || rowActions.length > 0) && (
@@ -701,28 +601,29 @@ export const DataTable: React.FC<DataTableProps> = (props = {}) => {
                           </td>
 
                           {visibleColumns.map((column) => {
-                            const value = (row as any)[column.accessor as string];
-                            const formattedValue = column.formatter
-                              ? column.formatter(value)
+                            const col = column as DataTableColumn;
+                            const value = (row as any)[col.accessor as string];
+                            const formattedValue = col.formatter
+                              ? col.formatter(value)
                               : value;
 
                             return (
                               <td
-                                key={column.accessor as string}
+                                key={col.accessor as string}
                                 className={`
                                 px-4 py-3 text-sm text-gray-900 dark:text-gray-100
                                 ${compact ? 'py-2' : 'py-3'}
-                                ${column.className || ''}
+                                ${col.className || ''}
                               `}
                               >
-                                {column.render ? (
-                                  column.render(value, row, index)
+                                {col.render ? (
+                                  col.render(value, row, index)
                                 ) : (
                                   <div className="flex items-center gap-2">
-                                    {column.type === 'number' && value > 0 && (
+                                    {col.type === 'number' && value > 0 && (
                                       <TrendingUp className="w-3 h-3 text-gray-500" />
                                     )}
-                                    {column.type === 'number' && value < 0 && (
+                                    {col.type === 'number' && value < 0 && (
                                       <TrendingDown className="w-3 h-3 text-gray-500" />
                                     )}
                                     <span>{formattedValue}</span>
