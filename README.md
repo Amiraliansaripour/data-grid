@@ -7,6 +7,7 @@ Created by [Amirali Ansaripour](https://github.com/Amiraliansaripour)
 [![npm version](https://badge.fury.io/js/%40amiraliansaripour%2Fdata-grid.svg)](https://badge.fury.io/js/%40amiraliansaripour%2Fdata-grid)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-%230074c1.svg)](http://www.typescriptlang.org/)
+[![CI/CD](https://github.com/AMSeify/data-grid/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/AMSeify/data-grid/actions/workflows/ci-cd.yml)
 
 ## 🌟 Overview
 
