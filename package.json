@@ -90,6 +90,7 @@
     "globals": "^16.3.0",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^30.0.5",
+    "jest-environment-jsdom": "^30.0.5",
     "jsdom": "^24.0.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.0.0",
