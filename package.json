@@ -53,6 +53,10 @@
     "url": "https://github.com/Amiraliansaripour"
   },
   "license": "MIT",
+  "engines": {
+    "node": ">=20.19.0",
+    "npm": ">=8.0.0"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Amiraliansaripour/data-grid.git"
