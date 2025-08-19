@@ -4,9 +4,20 @@ import { DataTable } from './index';
 
 // Mock framer-motion to avoid issues in test environment
 jest.mock('framer-motion', () => {
-  const stripFMProps = (Tag: any) => ({ children, whileHover, whileTap, layout, transition, initial, animate, exit, variants, ...rest }: any) => (
-    <Tag {...rest}>{children}</Tag>
-  );
+  const stripFMProps = (Tag: any) => (props: any) => {
+    const { 
+      whileHover: _WHILE_HOVER, 
+      whileTap: _WHILE_TAP, 
+      layout: _LAYOUT, 
+      transition: _TRANSITION, 
+      initial: _INITIAL, 
+      animate: _ANIMATE, 
+      exit: _EXIT, 
+      variants: _VARIANTS,
+      ...rest 
+    } = props;
+    return <Tag {...rest} />;
+  };
   return {
     motion: {
       div: stripFMProps('div'),
