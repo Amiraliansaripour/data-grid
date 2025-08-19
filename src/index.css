@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* DataTable Specific Styles */
+.react-advanced-datatable {
+  @apply bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden;
+}
+
+.react-advanced-datatable table {
+  @apply w-full;
+}
+
+.react-advanced-datatable th {
+  @apply px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider;
+}
+
+.react-advanced-datatable td {
+  @apply px-4 py-3 text-sm text-gray-900 dark:text-gray-100;
+}
+
+/* Custom scrollbar for better UX */
+.react-advanced-datatable ::-webkit-scrollbar {
+  @apply w-2 h-2;
+}
+
+.react-advanced-datatable ::-webkit-scrollbar-track {
+  @apply bg-gray-100 dark:bg-gray-700 rounded;
+}
+
+.react-advanced-datatable ::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 dark:bg-gray-600 rounded hover:bg-gray-400 dark:hover:bg-gray-500;
+}
+
+/* Loading animation */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* RTL Support */
+[dir="rtl"] .react-advanced-datatable {
+  direction: rtl;
+}
+
+[dir="rtl"] .react-advanced-datatable th {
+  @apply text-right;
+}
+
+[dir="rtl"] .react-advanced-datatable td {
+  @apply text-right;
+}
+
+/* Print styles */
+@media print {
+  .react-advanced-datatable {
+    @apply shadow-none;
+  }
+  
+  .react-advanced-datatable .no-print {
+    @apply hidden;
+  }
+}
