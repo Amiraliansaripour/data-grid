@@ -3,14 +3,19 @@ import { render, screen } from '@testing-library/react';
 import { DataTable } from './index';
 
 // Mock framer-motion to avoid issues in test environment
-jest.mock('framer-motion', () => ({
-  motion: {
-    div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
-    tr: ({ children, ...props }: any) => <tr {...props}>{children}</tr>,
-    button: ({ children, ...props }: any) => <button {...props}>{children}</button>,
-  },
-  AnimatePresence: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-}));
+jest.mock('framer-motion', () => {
+  const stripFMProps = (Tag: any) => ({ children, whileHover, whileTap, layout, transition, initial, animate, exit, variants, ...rest }: any) => (
+    <Tag {...rest}>{children}</Tag>
+  );
+  return {
+    motion: {
+      div: stripFMProps('div'),
+      tr: stripFMProps('tr'),
+      button: stripFMProps('button'),
+    },
+    AnimatePresence: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  };
+});
 
 // Mock lucide-react icons
 jest.mock('lucide-react', () => ({
