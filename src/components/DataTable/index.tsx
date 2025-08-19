@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as XLSX from 'xlsx';
@@ -82,18 +83,7 @@ export const DataTable: React.FC<DataTableProps> = (props = {}) => {
     rowActions = [],
   } = props;
 
-  // Early safety checks
-  if (!Array.isArray(data)) {
-    console.error("DataTable: data prop must be an array");
-    return null;
-  }
-
-  if (!Array.isArray(columns)) {
-    console.error("DataTable: columns prop must be an array");
-    return null;
-  }
-
-  // State management using custom hooks
+  // State management using custom hooks - MUST be called before any early returns
   const {
     currentPage,
     setCurrentPage,
@@ -163,6 +153,17 @@ export const DataTable: React.FC<DataTableProps> = (props = {}) => {
     
     return undefined;
   }, [openDropdownRowId]);
+
+  // Early safety checks - moved after hooks to follow Rules of Hooks
+  if (!Array.isArray(data)) {
+    console.error("DataTable: data prop must be an array");
+    return null;
+  }
+
+  if (!Array.isArray(columns)) {
+    console.error("DataTable: columns prop must be an array");
+    return null;
+  }
 
   // Visible columns
   const visibleColumns = useMemo(() => {

@@ -176,7 +176,9 @@ export const useProcessedData = <T>(
       result = sortByMultipleCriteria(result, multipleSortConfig);
     } else if (sortConfig.key) {
       result = [...result].sort((a, b) => {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const aValue = getNestedValue(a, sortConfig.key!);
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const bValue = getNestedValue(b, sortConfig.key!);
 
         if (aValue === bValue) return 0;

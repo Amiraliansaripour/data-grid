@@ -103,8 +103,7 @@ export const setNestedValue = (obj: any, path: string, value: any): void => {
 export const matchesFilter = (
   value: any,
   filterValue: string | number,
-  operator: string,
-  _columnType?: string
+  operator: string
 ): boolean => {
   if (!filterValue && filterValue !== 0) return true;
 
